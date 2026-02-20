@@ -5,6 +5,7 @@
 import './style.css';
 import { Game } from './core/Game.js';
 import { MenuManager } from './core/MenuManager.js';
+import { submitScore, getLeaderboard } from './services/scoreService.js';
 
 // Initialize menu and game
 const canvas = document.getElementById('gameCanvas');
@@ -12,8 +13,16 @@ const game = new Game(canvas);
 const menu = new MenuManager();
 
 // Setup game callbacks
-game.onGameEnd = (isVictory, score, wave) => {
-  menu.showEndScreen(isVictory, score, wave, game.gameState.gameMode);
+game.onGameEnd = async (isVictory, score, wave) => {
+  const mode = game.gameState.gameMode;
+  menu.showEndScreen(isVictory, score, wave, mode);
+
+  // Only submit and show leaderboard for endless mode
+  if (mode === 'endless') {
+    await submitScore(score, wave, mode);
+    const entries = await getLeaderboard(mode);
+    menu.updateLeaderboard(entries);
+  }
 };
 
 game.onLevelComplete = (level, score) => {

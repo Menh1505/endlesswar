@@ -29,6 +29,10 @@ export class MenuManager {
         this.levelCompleteTitle = document.getElementById('levelCompleteTitle');
         this.levelStats = document.getElementById('levelStats');
 
+        // Leaderboard elements
+        this.leaderboardSection = document.getElementById('leaderboardSection');
+        this.leaderboardList = document.getElementById('leaderboardList');
+
         // State
         this.currentMode = null;
         this.currentLevel = 1;
@@ -150,6 +154,10 @@ export class MenuManager {
 
         this.endScreen.style.display = 'flex';
 
+        // Hide leaderboard until data arrives
+        if (this.leaderboardSection) this.leaderboardSection.style.display = 'none';
+        if (this.leaderboardList) this.leaderboardList.innerHTML = '';
+
         if (mode === 'endless') {
             if (isVictory) {
                 this.endTitle.textContent = 'Victory!';
@@ -166,10 +174,29 @@ export class MenuManager {
         }
     }
 
+    // Populate leaderboard with entries from Snowflake
+    updateLeaderboard(entries) {
+        if (!this.leaderboardSection || !this.leaderboardList) return;
+        if (!entries || entries.length === 0) return;
+
+        this.leaderboardList.innerHTML = '';
+        for (const entry of entries) {
+            const shortId = String(entry.DEVICE_ID || entry.device_id).slice(0, 8);
+            const score = entry.SCORE ?? entry.score;
+            const wave = entry.WAVE ?? entry.wave;
+            const li = document.createElement('li');
+            li.className = 'leaderboard-entry';
+            li.innerHTML = `<span class="lb-id">${shortId}...</span><span class="lb-score">${score}</span><span class="lb-wave">Wave ${wave}</span>`;
+            this.leaderboardList.appendChild(li);
+        }
+        this.leaderboardSection.style.display = 'block';
+    }
+
     hideEndScreen() {
         if (this.endScreen) {
             this.endScreen.style.display = 'none';
         }
+        if (this.leaderboardSection) this.leaderboardSection.style.display = 'none';
     }
 
     showLevelComplete(level, score) {

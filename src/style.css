@@ -303,6 +303,66 @@ body {
   text-align: center;
 }
 
+/* Leaderboard */
+#leaderboardSection {
+  margin-top: 24px;
+  text-align: left;
+}
+
+.leaderboard-title {
+  font-size: 18px;
+  color: #ff6b6b;
+  margin-bottom: 10px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.leaderboard-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  counter-increment: leaderboard-counter;
+}
+
+.leaderboard-entry:nth-child(odd) {
+  background: rgba(255, 107, 107, 0.08);
+}
+
+.leaderboard-entry:first-child {
+  background: rgba(255, 215, 0, 0.15);
+  font-weight: bold;
+}
+
+.lb-id {
+  color: #aaa;
+  font-family: monospace;
+  flex: 1;
+}
+
+.lb-score {
+  color: #ff6b6b;
+  font-weight: bold;
+  min-width: 70px;
+  text-align: right;
+}
+
+.lb-wave {
+  color: #ccc;
+  min-width: 70px;
+  text-align: right;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .game-title {
