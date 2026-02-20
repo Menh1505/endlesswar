@@ -13,6 +13,7 @@ import { Obstacle } from '../entities/Obstacle.js';
 import { isColliding } from '../utils/collision.js';
 import { UPGRADES } from '../config/upgradeConfig.js';
 import { getCampaignLevel } from '../config/campaignLevels.js';
+import { createGrid } from '../utils/pathfinding.js';
 
 export class Game {
     constructor(canvas) {
@@ -38,6 +39,9 @@ export class Game {
         // Spawn timing
         this.lastSpawnTime = 0;
         this.spawnInterval = 800; // 800ms giữa mỗi enemy
+
+        // Pathfinding
+        this.pathfindingGrid = null;
 
         // Campaign data
         this.currentLevelData = null;
@@ -108,6 +112,9 @@ export class Game {
         } else {
             this.createDefaultObstacles();
         }
+
+        // Create pathfinding grid after obstacles are set
+        this.pathfindingGrid = createGrid(this.obstacles);
     }
 
     createDefaultObstacles() {
@@ -138,6 +145,7 @@ export class Game {
                 this.obstacles,
                 this.gameState,
                 this.enemyBullets,
+                this.pathfindingGrid,
                 enemyData.type
             );
             this.enemies.push(enemy);
@@ -253,6 +261,7 @@ export class Game {
             this.obstacles,
             this.gameState,
             this.enemyBullets,
+            this.pathfindingGrid,
             enemyType
         ));
 

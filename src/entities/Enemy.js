@@ -5,9 +5,10 @@
 import { ENEMY_TYPES } from '../config/enemyTypes.js';
 import { isColliding } from '../utils/collision.js';
 import { EnemyBullet } from './EnemyBullet.js';
+import { findPath } from '../utils/pathfinding.js';
 
 export class Enemy {
-    constructor(x, y, wave, player, obstacles, gameState, enemyBullets, type = 'grunt') {
+    constructor(x, y, wave, player, obstacles, gameState, enemyBullets, pathfindingGrid, type = 'grunt') {
         this.x = x;
         this.y = y;
         this.type = type;
@@ -39,6 +40,14 @@ export class Enemy {
         this.fuseTimer = 0;
         this.isExploding = false;
 
+        // Pathfinding
+        this.pathfindingGrid = pathfindingGrid;
+        this.path = null;
+        this.pathUpdateCounter = 0;
+        this.currentPathIndex = 0;
+        this.stuckCounter = 0;
+        this.lastPosition = { x: this.x, y: this.y };
+
         // Dependencies
         this.player = player;
         this.obstacles = obstacles;
@@ -60,6 +69,10 @@ export class Enemy {
         const dy = this.player.y + this.player.height / 2 - (this.y + this.height / 2);
         const dist = Math.sqrt(dx * dx + dy * dy);
 
+        // Lưu vị trí trước khi di chuyển
+        const prevX = this.x;
+        const prevY = this.y;
+
         // AI behavior dựa trên type
         switch (this.ai) {
             case 'chase':
@@ -76,13 +89,14 @@ export class Enemy {
                 break;
         }
 
-        // Va chạm với obstacles
+        // Va chạm với obstacles - rollback position nếu xuyên vào
         for (const obs of this.obstacles) {
             if (isColliding(this, obs)) {
-                if (dist > 0) {
-                    this.x -= (dx / dist) * this.speed * 2;
-                    this.y -= (dy / dist) * this.speed * 2;
-                }
+                // Rollback về vị trí cũ
+                this.x = prevX;
+                this.y = prevY;
+                // Đánh dấu stuck để recalculate path
+                this.stuckCounter += 3;
                 break;
             }
         }
@@ -103,10 +117,64 @@ export class Enemy {
     }
 
     updateChaseAI(dx, dy, dist) {
-        // Đơn giản: đuổi theo player
-        if (dist > 0) {
-            this.x += (dx / dist) * this.speed;
-            this.y += (dy / dist) * this.speed;
+        // Smart pathfinding: tìm đường tránh vật cản
+        this.pathUpdateCounter++;
+
+        // Recalculate path every 20 frames or if stuck
+        const distMoved = Math.sqrt(
+            Math.pow(this.x - this.lastPosition.x, 2) +
+            Math.pow(this.y - this.lastPosition.y, 2)
+        );
+
+        if (distMoved < 0.8) {
+            this.stuckCounter++;
+        } else {
+            this.stuckCounter = 0;
+        }
+
+        if (this.pathUpdateCounter % 20 === 0 || this.stuckCounter > 5 || !this.path) {
+            const playerCenterX = this.player.x + this.player.width / 2;
+            const playerCenterY = this.player.y + this.player.height / 2;
+            const enemyCenterX = this.x + this.width / 2;
+            const enemyCenterY = this.y + this.height / 2;
+
+            this.path = findPath(
+                this.pathfindingGrid,
+                enemyCenterX,
+                enemyCenterY,
+                playerCenterX,
+                playerCenterY
+            );
+            this.currentPathIndex = 0;
+            this.stuckCounter = 0;
+        }
+
+        this.lastPosition = { x: this.x, y: this.y };
+
+        // Follow path if exists
+        if (this.path && this.path.length > 0) {
+            // Skip to next waypoint if close enough
+            while (this.currentPathIndex < this.path.length) {
+                const waypoint = this.path[this.currentPathIndex];
+                const waypointDx = waypoint.x - (this.x + this.width / 2);
+                const waypointDy = waypoint.y - (this.y + this.height / 2);
+                const waypointDist = Math.sqrt(waypointDx * waypointDx + waypointDy * waypointDy);
+
+                if (waypointDist < 12) {
+                    this.currentPathIndex++;
+                } else {
+                    // Move towards this waypoint
+                    this.x += (waypointDx / waypointDist) * this.speed;
+                    this.y += (waypointDy / waypointDist) * this.speed;
+                    break;
+                }
+            }
+        } else {
+            // Fallback: direct movement if no path found
+            if (dist > 0) {
+                this.x += (dx / dist) * this.speed;
+                this.y += (dy / dist) * this.speed;
+            }
         }
     }
 
@@ -133,10 +201,61 @@ export class Enemy {
     }
 
     updateBomberAI(dx, dy, dist) {
-        // Lao tới player
-        if (dist > 0) {
-            this.x += (dx / dist) * this.speed;
-            this.y += (dy / dist) * this.speed;
+        // Smart pathfinding cho bomber
+        this.pathUpdateCounter++;
+
+        const distMoved = Math.sqrt(
+            Math.pow(this.x - this.lastPosition.x, 2) +
+            Math.pow(this.y - this.lastPosition.y, 2)
+        );
+
+        if (distMoved < 0.8) {
+            this.stuckCounter++;
+        } else {
+            this.stuckCounter = 0;
+        }
+
+        if (this.pathUpdateCounter % 20 === 0 || this.stuckCounter > 5 || !this.path) {
+            const playerCenterX = this.player.x + this.player.width / 2;
+            const playerCenterY = this.player.y + this.player.height / 2;
+            const enemyCenterX = this.x + this.width / 2;
+            const enemyCenterY = this.y + this.height / 2;
+
+            this.path = findPath(
+                this.pathfindingGrid,
+                enemyCenterX,
+                enemyCenterY,
+                playerCenterX,
+                playerCenterY
+            );
+            this.currentPathIndex = 0;
+            this.stuckCounter = 0;
+        }
+
+        this.lastPosition = { x: this.x, y: this.y };
+
+        // Follow path if exists
+        if (this.path && this.path.length > 0) {
+            while (this.currentPathIndex < this.path.length) {
+                const waypoint = this.path[this.currentPathIndex];
+                const waypointDx = waypoint.x - (this.x + this.width / 2);
+                const waypointDy = waypoint.y - (this.y + this.height / 2);
+                const waypointDist = Math.sqrt(waypointDx * waypointDx + waypointDy * waypointDy);
+
+                if (waypointDist < 12) {
+                    this.currentPathIndex++;
+                } else {
+                    this.x += (waypointDx / waypointDist) * this.speed;
+                    this.y += (waypointDy / waypointDist) * this.speed;
+                    break;
+                }
+            }
+        } else {
+            // Fallback: direct movement
+            if (dist > 0) {
+                this.x += (dx / dist) * this.speed;
+                this.y += (dy / dist) * this.speed;
+            }
         }
 
         // Bắt đầu fuse khi gần player
@@ -147,10 +266,62 @@ export class Enemy {
     }
 
     updateBossAI(dx, dy, dist, dt) {
-        // Boss: vừa đuổi vừa bắn
+        // Boss: smart pathfinding + shooting
+        this.pathUpdateCounter++;
+
+        // Only move if far from player
         if (dist > 150) {
-            this.x += (dx / dist) * this.speed;
-            this.y += (dy / dist) * this.speed;
+            const distMoved = Math.sqrt(
+                Math.pow(this.x - this.lastPosition.x, 2) +
+                Math.pow(this.y - this.lastPosition.y, 2)
+            );
+
+            if (distMoved < 0.8) {
+                this.stuckCounter++;
+            } else {
+                this.stuckCounter = 0;
+            }
+
+            if (this.pathUpdateCounter % 20 === 0 || this.stuckCounter > 5 || !this.path) {
+                const playerCenterX = this.player.x + this.player.width / 2;
+                const playerCenterY = this.player.y + this.player.height / 2;
+                const enemyCenterX = this.x + this.width / 2;
+                const enemyCenterY = this.y + this.height / 2;
+
+                this.path = findPath(
+                    this.pathfindingGrid,
+                    enemyCenterX,
+                    enemyCenterY,
+                    playerCenterX,
+                    playerCenterY
+                );
+                this.currentPathIndex = 0;
+                this.stuckCounter = 0;
+            }
+
+            this.lastPosition = { x: this.x, y: this.y };
+
+            // Follow path
+            if (this.path && this.path.length > 0) {
+                while (this.currentPathIndex < this.path.length) {
+                    const waypoint = this.path[this.currentPathIndex];
+                    const waypointDx = waypoint.x - (this.x + this.width / 2);
+                    const waypointDy = waypoint.y - (this.y + this.height / 2);
+                    const waypointDist = Math.sqrt(waypointDx * waypointDx + waypointDy * waypointDy);
+
+                    if (waypointDist < 12) {
+                        this.currentPathIndex++;
+                    } else {
+                        this.x += (waypointDx / waypointDist) * this.speed;
+                        this.y += (waypointDy / waypointDist) * this.speed;
+                        break;
+                    }
+                }
+            } else {
+                // Fallback
+                this.x += (dx / dist) * this.speed;
+                this.y += (dy / dist) * this.speed;
+            }
         }
 
         // Bắn liên tục
