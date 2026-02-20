@@ -5,7 +5,7 @@
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config/constants.js';
 
 export class EnemyBullet {
-    constructor(x, y, vx, vy, damage) {
+    constructor(x, y, vx, vy, damage, splashRadius = 0) {
         this.x = x;
         this.y = y;
         this.vx = vx;
@@ -14,6 +14,7 @@ export class EnemyBullet {
         this.height = 8;
         this.damage = damage;
         this.isDead = false;
+        this.splashRadius = splashRadius; // For artillery AoE
     }
 
     update(dt) {
@@ -28,15 +29,30 @@ export class EnemyBullet {
     }
 
     draw(ctx) {
-        ctx.fillStyle = '#FF0000';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.width / 2, 0, Math.PI * 2);
-        ctx.fill();
+        // Artillery splash bullets look different
+        if (this.splashRadius > 0) {
+            ctx.fillStyle = '#FFA500';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.width, 0, Math.PI * 2);
+            ctx.fill();
 
-        // Glow effect
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.width, 0, Math.PI * 2);
-        ctx.fill();
+            // Glow effect - larger for splash
+            ctx.fillStyle = 'rgba(255, 165, 0, 0.4)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.width * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            // Normal bullets
+            ctx.fillStyle = '#FF0000';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Glow effect
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.width, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 }

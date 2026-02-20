@@ -341,19 +341,53 @@ export class Game {
 
         // === COLLISION: Enemy Bullet vs Player ===
         for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
-            if (isColliding(this.enemyBullets[i], this.player)) {
-                this.player.takeDamage(this.enemyBullets[i].damage);
-                this.enemyBullets[i].isDead = true;
+            const bullet = this.enemyBullets[i];
+
+            if (isColliding(bullet, this.player)) {
+                this.player.takeDamage(bullet.damage);
+
+                // Artillery splash damage - screen shake for impact
+                if (bullet.splashRadius > 0) {
+                    this.gameState.screenShake = 15;
+                }
+
+                bullet.isDead = true;
+            } else if (bullet.splashRadius > 0) {
+                // Check splash damage even if not direct hit
+                const dx = this.player.x + this.player.width / 2 - bullet.x;
+                const dy = this.player.y + this.player.height / 2 - bullet.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                // If bullet is very close to player, deal splash damage
+                if (dist < bullet.splashRadius / 2) {
+                    this.player.takeDamage(bullet.damage * 0.7); // Reduced splash damage
+                    this.gameState.screenShake = 10;
+                    bullet.isDead = true;
+                }
             }
         }
 
         // === COLLISION: Enemy Bullet vs Obstacles ===
         for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
             if (this.enemyBullets[i].isDead) continue;
+            const bullet = this.enemyBullets[i];
 
             for (let j = 0; j < this.obstacles.length; j++) {
-                if (isColliding(this.enemyBullets[i], this.obstacles[j])) {
-                    this.enemyBullets[i].isDead = true;
+                if (isColliding(bullet, this.obstacles[j])) {
+                    // Artillery bullets explode on obstacle impact (splash near player)
+                    if (bullet.splashRadius > 0) {
+                        const dx = this.player.x + this.player.width / 2 - bullet.x;
+                        const dy = this.player.y + this.player.height / 2 - bullet.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < bullet.splashRadius) {
+                            const damageRatio = 1 - (dist / bullet.splashRadius);
+                            this.player.takeDamage(Math.floor(bullet.damage * damageRatio * 0.5));
+                            this.gameState.screenShake = 8;
+                        }
+                    }
+
+                    bullet.isDead = true;
                     break;
                 }
             }

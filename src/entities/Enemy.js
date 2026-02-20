@@ -34,6 +34,20 @@ export class Enemy {
         this.bulletSpeed = config.bulletSpeed || 0;
         this.lastShot = 0;
 
+        // Burst fire (machinegunner)
+        this.burstCount = config.burstCount || 0;
+        this.burstDelay = config.burstDelay || 0;
+        this.currentBurst = 0;
+        this.burstTimer = 0;
+        this.isBursting = false;
+
+        // Spread fire (flamethrower, spreader)
+        this.spreadCount = config.spreadCount || 0;
+        this.spreadAngle = config.spreadAngle || 0;
+
+        // Splash damage (artillery)
+        this.splashRadius = config.splashRadius || 0;
+
         // Bomber-specific
         this.explosionRadius = config.explosionRadius || 0;
         this.fuseTime = config.fuseTime || 0;
@@ -65,6 +79,24 @@ export class Enemy {
             }
         }
 
+        // Xử lý burst fire
+        if (this.isBursting) {
+            this.burstTimer -= dt;
+            if (this.burstTimer <= 0 && this.currentBurst < this.burstCount) {
+                const dx = this.player.x + this.player.width / 2 - (this.x + this.width / 2);
+                const dy = this.player.y + this.player.height / 2 - (this.y + this.height / 2);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                this.shoot(dx, dy, dist);
+                this.currentBurst++;
+                this.burstTimer = this.burstDelay;
+
+                if (this.currentBurst >= this.burstCount) {
+                    this.isBursting = false;
+                    this.currentBurst = 0;
+                }
+            }
+        }
+
         const dx = this.player.x + this.player.width / 2 - (this.x + this.width / 2);
         const dy = this.player.y + this.player.height / 2 - (this.y + this.height / 2);
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -86,6 +118,21 @@ export class Enemy {
                 break;
             case 'boss':
                 this.updateBossAI(dx, dy, dist, dt);
+                break;
+            case 'machinegunner':
+                this.updateMachinegunnerAI(dx, dy, dist, dt);
+                break;
+            case 'sniper':
+                this.updateSniperAI(dx, dy, dist, dt);
+                break;
+            case 'flamethrower':
+                this.updateFlamethrowerAI(dx, dy, dist, dt);
+                break;
+            case 'artillery':
+                this.updateArtilleryAI(dx, dy, dist, dt);
+                break;
+            case 'spreader':
+                this.updateSpreaderAI(dx, dy, dist, dt);
                 break;
         }
 
@@ -344,8 +391,137 @@ export class Enemy {
             centerY,
             bulletVx,
             bulletVy,
-            this.damage
+            this.damage,
+            this.splashRadius // Pass splash radius for artillery
         ));
+    }
+
+    shootSpread(dx, dy, dist) {
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.height / 2;
+
+        // Calculate base angle
+        const baseAngle = Math.atan2(dy, dx);
+        const spreadRad = (this.spreadAngle * Math.PI) / 180;
+
+        // Shoot multiple bullets in a spread pattern
+        for (let i = 0; i < this.spreadCount; i++) {
+            const offset = (i - (this.spreadCount - 1) / 2) * (spreadRad / (this.spreadCount - 1));
+            const angle = baseAngle + offset;
+
+            const bulletVx = Math.cos(angle) * this.bulletSpeed;
+            const bulletVy = Math.sin(angle) * this.bulletSpeed;
+
+            this.enemyBullets.push(new EnemyBullet(
+                centerX,
+                centerY,
+                bulletVx,
+                bulletVy,
+                this.damage
+            ));
+        }
+    }
+
+    updateMachinegunnerAI(dx, dy, dist, dt) {
+        // Giữ khoảng cách và bắn burst
+        if (dist < this.keepDistance) {
+            this.x -= (dx / dist) * this.speed;
+            this.y -= (dy / dist) * this.speed;
+        } else if (dist > this.shootRange) {
+            this.x += (dx / dist) * this.speed;
+            this.y += (dy / dist) * this.speed;
+        }
+
+        // Bắn burst khi trong tầm
+        if (dist <= this.shootRange && !this.isBursting) {
+            const now = Date.now();
+            if (now - this.lastShot >= this.fireRate) {
+                this.isBursting = true;
+                this.currentBurst = 0;
+                this.burstTimer = 0;
+                this.lastShot = now;
+            }
+        }
+    }
+
+    updateSniperAI(dx, dy, dist, dt) {
+        // Giống shooter nhưng giữ khoảng cách xa hơn
+        if (dist < this.keepDistance) {
+            this.x -= (dx / dist) * this.speed;
+            this.y -= (dy / dist) * this.speed;
+        } else if (dist > this.shootRange) {
+            this.x += (dx / dist) * this.speed;
+            this.y += (dy / dist) * this.speed;
+        }
+
+        // Bắn khi trong tầm
+        if (dist <= this.shootRange) {
+            const now = Date.now();
+            if (now - this.lastShot >= this.fireRate) {
+                this.shoot(dx, dy, dist);
+                this.lastShot = now;
+            }
+        }
+    }
+
+    updateFlamethrowerAI(dx, dy, dist, dt) {
+        // Tiến gần và bắn spread
+        if (dist < this.keepDistance) {
+            this.x -= (dx / dist) * this.speed * 0.5; // Lùi chậm hơn
+            this.y -= (dy / dist) * this.speed * 0.5;
+        } else if (dist > this.shootRange) {
+            this.x += (dx / dist) * this.speed;
+            this.y += (dy / dist) * this.speed;
+        }
+
+        // Bắn spread khi trong tầm
+        if (dist <= this.shootRange) {
+            const now = Date.now();
+            if (now - this.lastShot >= this.fireRate) {
+                this.shootSpread(dx, dy, dist);
+                this.lastShot = now;
+            }
+        }
+    }
+
+    updateArtilleryAI(dx, dy, dist, dt) {
+        // Giữ khoảng cách xa, bắn chậm nhưng mạnh
+        if (dist < this.keepDistance) {
+            this.x -= (dx / dist) * this.speed;
+            this.y -= (dy / dist) * this.speed;
+        } else if (dist > this.shootRange) {
+            this.x += (dx / dist) * this.speed;
+            this.y += (dy / dist) * this.speed;
+        }
+
+        // Bắn splash bullets
+        if (dist <= this.shootRange) {
+            const now = Date.now();
+            if (now - this.lastShot >= this.fireRate) {
+                this.shoot(dx, dy, dist); // Uses splash radius from config
+                this.lastShot = now;
+            }
+        }
+    }
+
+    updateSpreaderAI(dx, dy, dist, dt) {
+        // Tiến gần và bắn shotgun spread
+        if (dist < this.keepDistance) {
+            this.x -= (dx / dist) * this.speed;
+            this.y -= (dy / dist) * this.speed;
+        } else if (dist > this.shootRange) {
+            this.x += (dx / dist) * this.speed;
+            this.y += (dy / dist) * this.speed;
+        }
+
+        // Bắn spread
+        if (dist <= this.shootRange) {
+            const now = Date.now();
+            if (now - this.lastShot >= this.fireRate) {
+                this.shootSpread(dx, dy, dist);
+                this.lastShot = now;
+            }
+        }
     }
 
     explode() {
@@ -423,6 +599,11 @@ export class Enemy {
             case 'shooter': icon = '🔫'; break;
             case 'bomber': icon = '💣'; break;
             case 'boss': icon = '👑'; break;
+            case 'machinegunner': icon = '🔫🔫'; break;
+            case 'sniper': icon = '🎯'; break;
+            case 'flamethrower': icon = '🔥'; break;
+            case 'artillery': icon = '💥'; break;
+            case 'spreader': icon = '🎲'; break;
         }
 
         if (icon) {
