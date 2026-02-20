@@ -1,99 +1,99 @@
 # 🎮 Endless War - Top Down Shooter
 
-Game bắn súng top-down chạy trên browser, được viết bằng **Vanilla JavaScript** và **Canvas 2D API**.
+A top-down shooter game that runs in the browser, built with **Vanilla JavaScript** and **Canvas 2D API**.
 
-## 🚀 Cách chạy game
+## 🚀 How to Run
 
-1. **Cài đặt dependencies**:
+1. **Install dependencies**:
    ```bash
    npm install
    ```
 
-2. **Chạy development server**:
+2. **Run development server**:
    ```bash
    npm run dev
    ```
 
-3. Mở browser tại địa chỉ hiển thị (thường là `http://localhost:5173`)
+3. Open browser at the displayed address (usually `http://localhost:5173`)
 
 ## 🎯 Gameplay
 
-### Điều khiển
-- **W/A/S/D** hoặc **Mũi tên**: Di chuyển player
-- **Chuột**: Xoay hướng bắn (player sẽ xoay theo con trỏ chuột)
-- **Click chuột trái** (hoặc giữ): Bắn
-- **R**: Reload đạn (hoặc Restart khi game over)
-- **1/2**: Chuyển đổi vũ khí (Pistol/Rifle)
+### Controls
+- **W/A/S/D** or **Arrow Keys**: Move player
+- **Mouse**: Aim direction (player rotates to follow cursor)
+- **Left Click** (or hold): Shoot
+- **R**: Reload ammo (or Restart when game over)
+- **1/2**: Switch weapons (Pistol/Rifle)
 
-### Mục tiêu
-- Tiêu diệt enemy để tăng điểm
-- Sống sót càng lâu càng tốt
-- Wave tăng dần → enemy mạnh hơn, spawn nhanh hơn
+### Objectives
+- Eliminate enemies to earn points
+- Survive as long as possible
+- Progressive waves → stronger enemies, faster spawning
 
-### Vũ khí
+### Weapons
 
 #### 🔫 Pistol
-- **Sát thương**: 20
-- **Tốc độ bắn**: Chậm (400ms/phát)
-- **Đạn**: Vô hạn
-- Thích hợp cho early game hoặc khi hết đạn Rifle
+- **Damage**: 20
+- **Fire Rate**: Slow (400ms/shot)
+- **Ammo**: Unlimited
+- Suitable for early game or when Rifle is out of ammo
 
 #### 🔫 Rifle
-- **Sát thương**: 35
-- **Tốc độ bắn**: Nhanh (150ms/phát)
-- **Băng đạn**: 30 viên
-- **Reload**: 2 giây
-- Sát thương cao nhưng cần quản lý đạn
+- **Damage**: 35
+- **Fire Rate**: Fast (150ms/shot)
+- **Magazine**: 30 rounds
+- **Reload**: 2 seconds
+- High damage but requires ammo management
 
 ### Enemy Types
 
-Game có **4 loại enemy** với đặc điểm riêng:
+The game features **4 enemy types** with unique characteristics:
 
 #### 🔴 Normal Enemy
-- HP và tốc độ trung bình
-- Gây 10 damage
-- Màu đỏ
-- Giá trị: 10 điểm
+- Average HP and speed
+- Deals 10 damage
+- Red color
+- Worth: 10 points
 
 #### 🟠 Fast Enemy  
-- HP thấp nhưng rất nhanh
-- Gây 8 damage
-- Màu cam
-- Giá trị: 15 điểm
+- Low HP but very fast
+- Deals 8 damage
+- Orange color
+- Worth: 15 points
 
 #### 🟢 Tank Enemy
-- HP rất cao nhưng chậm
-- Gây 20 damage  
-- Màu xanh lá
-- Giá trị: 30 điểm
+- Very high HP but slow
+- Deals 20 damage  
+- Green color
+- Worth: 30 points
 
 #### 🟣 Boss Enemy
-- HP cực cao (500+)
-- Size gấp đôi
-- Gây 30 damage
-- Màu tím, có label "BOSS"
-- Giá trị: 100 điểm
-- **Xuất hiện mỗi 5 wave** (wave 5, 10, 15...)
+- Extremely high HP (500+)
+- Double size
+- Deals 30 damage
+- Purple color with "BOSS" label
+- Worth: 100 points
+- **Appears every 5 waves** (wave 5, 10, 15...)
 
-### Wave System - **MỚI!** 🌊
+### Wave System - **NEW!** 🌊
 
-Mỗi wave giờ có cấu trúc cụ thể:
-- **Số lượng**: Mỗi wave có số enemy xác định (không random)
-- **Composition**: Tỉ lệ từng loại enemy khác nhau
-- **Boss Waves**: Mỗi 5 wave có 1 boss xuất hiện
-- **Wave Break**: Sau mỗi wave nghỉ **10 giây** để chọn upgrade
+Each wave now has a specific structure:
+- **Count**: Each wave has a fixed number of enemies (not random)
+- **Composition**: Different ratios of enemy types
+- **Boss Waves**: A boss appears every 5 waves
+- **Wave Break**: **10 seconds** rest after each wave to choose upgrades
 
 #### Wave Progression:
-- **Wave 1-5**: Làm quen (chủ yếu Normal, ít Fast)
-- **Wave 6-10**: Tăng độ khó (thêm Tank)
-- **Wave 11+**: Hardcore (nhiều Fast + Tank)
+- **Wave 1-5**: Tutorial (mostly Normal, few Fast)
+- **Wave 6-10**: Increasing difficulty (Tank enemies added)
+- **Wave 11+**: Hardcore (many Fast + Tank)
 
-### Upgrade System - **MỚI!** 🎁
+### Upgrade System - **NEW!** 🎁
 
-Sau mỗi wave, chọn 1 trong 3 upgrades ngẫu nhiên:
+After each wave, choose 1 of 3 random upgrades:
 
 **HP Upgrades**:
-- ❤️ Max HP +20 (và hồi đầy máu)
+- ❤️ Max HP +20 (and restore to full)
 - 💚 Heal 50 HP
 
 **Speed Upgrade**:
@@ -105,117 +105,117 @@ Sau mỗi wave, chọn 1 trong 3 upgrades ngẫu nhiên:
 - 📦 Max Ammo +50%
 - 🚀 Bullet Speed +30%
 
-**Cách chọn**: Nhấn **1, 2, 3** trong break time hoặc chờ auto-start
+**How to choose**: Press **1, 2, 3** during break time or wait for auto-start
 
-> 💡 **Xem chi tiết**: [WAVE_SYSTEM.md](WAVE_SYSTEM.md) - Hướng dẫn đầy đủ về wave system
+> 💡 **See details**: [WAVE_SYSTEM.md](WAVE_SYSTEM.md) - Complete guide to wave system
 
-### Chướng ngại vật
-- Các hộp màu xám trên map
-- Player và enemy KHÔNG được đi xuyên qua
-- Sử dụng để kiting enemy
+### Obstacles
+- Gray boxes on the map
+- Both player and enemies CANNOT pass through
+- Use them for kiting enemies
 
-## 🎨 Đặc điểm kỹ thuật
+## 🎨 Technical Features
 
-### Công nghệ
+### Technology
 - ✅ **Vanilla JavaScript** (ES6+)
-- ✅ **Canvas 2D API** - Vẽ toàn bộ bằng hình học cơ bản (rect, circle, line)
+- ✅ **Canvas 2D API** - Everything drawn with basic shapes (rect, circle, line)
 - ✅ **Vite** - Build tool & dev server
-- ✅ **KHÔNG dùng thư viện ngoài** cho game logic
+- ✅ **NO external libraries** for game logic
 
 ### Game Systems
 
 #### 🔄 Game Loop
-- Sử dụng `requestAnimationFrame` (60 FPS)
-- Delta time để tính toán frame-independent
+- Uses `requestAnimationFrame` (60 FPS)
+- Delta time for frame-independent calculations
 
 #### 💥 Collision System
 - **AABB** (Axis-Aligned Bounding Box)
-- Áp dụng cho:
+- Applied to:
   - Bullet ↔ Enemy
   - Enemy ↔ Player
   - Player/Enemy ↔ Obstacles
 
-#### 🌊 Wave System - **MỚI!**
-- **Wave-based spawning**: Mỗi wave có số lượng và composition cụ thể
+#### 🌊 Wave System - **NEW!**
+- **Wave-based spawning**: Each wave has specific count and composition
 - **4 Enemy types**: Normal, Fast, Tank, Boss
-- **Boss waves**: Mỗi 5 wave xuất hiện 1 boss
+- **Boss waves**: A boss appears every 5 waves
 - **Wave progression**: 15 pre-configured waves + scaling formula
 
-#### 🎁 Upgrade System - **MỚI!**
-- **Break time**: 10 giây nghỉ sau mỗi wave
+#### 🎁 Upgrade System - **NEW!**
+- **Break time**: 10 seconds rest after each wave
 - **7 upgrade types**: HP, Speed, Fire Rate, Damage, Ammo, Bullet Speed
-- **Random selection**: 3 upgrades ngẫu nhiên mỗi wave
-- **Strategic choices**: Chọn upgrade phù hợp với playstyle
+- **Random selection**: 3 random upgrades each wave
+- **Strategic choices**: Choose upgrades that match your playstyle
 
 #### 🎯 Effects
-- **Screen shake**: Khi player bị hit
-- **Flash effect**: Enemy nhấp nháy khi bị bắn
-- **Invincibility frames**: Player có 0.5s miễn nhiễm sau khi bị hit
+- **Screen shake**: When player is hit
+- **Flash effect**: Enemy flashes when shot
+- **Invincibility frames**: Player has 0.5s immunity after being hit
 
-## 📦 Cấu trúc code (Modular & Production-Ready)
+## 📦 Code Structure (Modular & Production-Ready)
 
 ```
 src/
-├── config/              # ⚙️ Cấu hình & hằng số
+├── config/              # ⚙️ Configuration & constants
 │   ├── constants.js     # Canvas size, player/enemy/bullet stats
-│   └── weaponConfig.js  # Cấu hình vũ khí (damage, fire rate, ammo)
+│   └── weaponConfig.js  # Weapon configuration (damage, fire rate, ammo)
 │
-├── utils/               # 🛠️ Các hàm tiện ích
-│   ├── math.js          # Hàm toán học (distance, normalize, randomRange)
-│   └── collision.js     # Kiểm tra va chạm AABB
+├── utils/               # 🛠️ Utility functions
+│   ├── math.js          # Math functions (distance, normalize, randomRange)
+│   └── collision.js     # AABB collision detection
 │
-├── entities/            # 👾 Các đối tượng game
-│   ├── Player.js        # Class người chơi (movement, shooting, reload)
-│   ├── Enemy.js         # Class kẻ địch (AI, HP, damage)
-│   ├── Bullet.js        # Class viên đạn
-│   └── Obstacle.js      # Class chướng ngại vật
+├── entities/            # 👾 Game entities
+│   ├── Player.js        # Player class (movement, shooting, reload)
+│   ├── Enemy.js         # Enemy class (AI, HP, damage)
+│   ├── Bullet.js        # Bullet class
+│   └── Obstacle.js      # Obstacle class
 │
 ├── core/                # 🎮 Core game systems
-│   ├── GameState.js     # Quản lý trạng thái (score, wave, game over)
-│   ├── InputManager.js  # Xử lý keyboard & mouse
-│   ├── Renderer.js      # Vẽ màn hình và UI (HUD, game over)
-│   └── Game.js          # Logic game chính (game loop, update, collision)
+│   ├── GameState.js     # State management (score, wave, game over)
+│   ├── InputManager.js  # Keyboard & mouse handling
+│   ├── Renderer.js      # Screen and UI rendering (HUD, game over)
+│   └── Game.js          # Main game logic (game loop, update, collision)
 │
-├── main.js              # 🚀 Entry point (khởi tạo game)
+├── main.js              # 🚀 Entry point (game initialization)
 └── style.css            # 🎨 CSS styling
 
 ```
 
-> 💡 **Xem chi tiết**: [ARCHITECTURE.md](ARCHITECTURE.md) - Giải thích đầy đủ về cấu trúc và cách mở rộng
+> 💡 **See details**: [ARCHITECTURE.md](ARCHITECTURE.md) - Full explanation of structure and how to extend
 
 ## 🎮 HUD (Heads-Up Display)
 
-Góc trên trái:
-- **Score**: Tổng điểm
-- **Wave**: Wave hiện tại
-- **HP Bar**: Thanh máu (đổi màu theo % HP)
-- **Weapon**: Tên vũ khí hiện tại
-- **Ammo**: Số đạn còn lại/tổng đạn
+Top left corner:
+- **Score**: Total points
+- **Wave**: Current wave
+- **HP Bar**: Health bar (changes color by HP %)
+- **Weapon**: Current weapon name
+- **Ammo**: Remaining ammo/total ammo
 
-Góc trên phải:
-- Hướng dẫn điều khiển
+Top right corner:
+- Controls guide
 
 ## 🏆 Game Over
 
-Khi HP = 0:
-- Hiển thị màn hình "GAME OVER"
-- Hiển thị điểm cuối cùng & wave đạt được
-- Nhấn **R** để chơi lại (reset toàn bộ state)
+When HP = 0:
+- Display "GAME OVER" screen
+- Show final score & wave reached
+- Press **R** to play again (reset entire state)
 
-## 🔧 Tùy chỉnh & mở rộng
+## 🔧 Customization & Extension
 
-### Điều chỉnh độ khó
-Trong `src/config/constants.js`:
+### Adjust Difficulty
+In `src/config/constants.js`:
 ```javascript
 export const GAME = {
-  INITIAL_ENEMY_SPAWN_RATE: 2000,  // Thời gian spawn (ms)
+  INITIAL_ENEMY_SPAWN_RATE: 2000,  // Spawn time (ms)
   MIN_SPAWN_RATE: 800,
-  WAVE_SCORE_THRESHOLD: 20,  // Điểm cần để lên wave
+  WAVE_SCORE_THRESHOLD: 20,  // Points needed to advance wave
 };
 ```
 
-### Thêm vũ khí mới
-Trong `src/config/weaponConfig.js`:
+### Add New Weapon
+In `src/config/weaponConfig.js`:
 ```javascript
 export const WEAPON_CONFIG = {
   pistol: { ... },
@@ -230,24 +230,24 @@ export const WEAPON_CONFIG = {
     reloadTime: 1500
   }
 };
-```Quality
-
-- ✅ **Modular Architecture**: Code được chia thành các module rõ ràng
-- ✅ **Separation of Concerns**: Mỗi file có trách nhiệm cụ thể
-- ✅ **Easy to Maintain**: Sửa một tính năng chỉ cần sửa một file
-- ✅ **Scalable**: Dễ dàng thêm entity/weapon/feature mới
-- ✅ **Production Ready**: Cấu trúc chuẩn công nghiệp
-- ✅ **Comments**: Code có comment bằng tiếng Việt đầy đủ
-export const CANVAS_HEIGHT = 800;
 ```
 
-## 📝 Code được comment đầy đủ
+## ✨ Code Quality
 
-Toàn bộ code có comment bằng **tiếng Việt** để dễ hiểu và sửa đổi:
-- ✅ Giải thích từng khối logic
-- ✅ Các section rõ ràng (Input, Update, Render, Collision)
-- ✅ Comment cho từng class và method quan trọng
+- ✅ **Modular Architecture**: Code divided into clear modules
+- ✅ **Separation of Concerns**: Each file has specific responsibility
+- ✅ **Easy to Maintain**: Modify a feature by editing just one file
+- ✅ **Scalable**: Easy to add new entity/weapon/feature
+- ✅ **Production Ready**: Industry-standard structure
+- ✅ **Comments**: Code fully commented in Vietnamese
 
-## 🎉 Chúc vui vẻ!
+## 📝 Fully Commented Code
 
-Enjoy the game! Nếu có bug hoặc muốn thêm feature, hãy sửa trực tiếp trong `src/main.js`. Code đã được tổ chức rõ ràng để dễ dàng customize.
+All code includes **Vietnamese comments** for easy understanding and modification:
+- ✅ Explanation of each logic block
+- ✅ Clear sections (Input, Update, Render, Collision)
+- ✅ Comments for each important class and method
+
+## 🎉 Have Fun!
+
+Enjoy the game! If you find bugs or want to add features, feel free to edit directly in the source files. The code is well-organized for easy customization.
