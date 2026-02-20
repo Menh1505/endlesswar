@@ -1,0 +1,70 @@
+// ============================================================================
+// ENDLESS WAR - Main Entry Point
+// ============================================================================
+
+import './style.css';
+import { Game } from './core/Game.js';
+import { MenuManager } from './core/MenuManager.js';
+
+// Initialize menu and game
+const canvas = document.getElementById('gameCanvas');
+const game = new Game(canvas);
+const menu = new MenuManager();
+
+// Setup game callbacks
+game.onGameEnd = (isVictory, score, wave) => {
+  menu.showEndScreen(isVictory, score, wave, game.gameState.gameMode);
+};
+
+game.onLevelComplete = (level, score) => {
+  menu.showLevelComplete(level, score);
+};
+
+game.onPause = (isPaused) => {
+  if (isPaused) {
+    menu.showPause();
+  } else {
+    menu.hidePause();
+  }
+};
+
+// Setup menu callbacks
+menu.onStartEndless = () => {
+  game.startEndlessMode();
+};
+
+menu.onStartCampaign = (level) => {
+  game.startCampaignMode(level);
+};
+
+menu.onRetry = () => {
+  if (game.gameState.gameMode === 'endless') {
+    game.startEndlessMode();
+  } else {
+    game.startCampaignMode(game.gameState.currentLevel);
+  }
+};
+
+menu.onNextLevel = (level) => {
+  game.startCampaignMode(level);
+};
+
+menu.onBackToMenu = () => {
+  // Stop game loop if needed
+  game.gameState.isRunning = false;
+};
+
+menu.onResume = () => {
+  game.resumeGame();
+};
+
+menu.onPauseMenuBack = () => {
+  game.gameState.isRunning = false;
+  game.gameState.isPaused = false;
+};
+
+// Initialize game (starts the game loop)
+game.init();
+
+// Show home screen
+menu.showHome();

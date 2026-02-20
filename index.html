@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Endless War - Top Down Shooter</title>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Home Screen -->
+    <div id="homeScreen" class="screen">
+      <div class="menu-container">
+        <h1 class="game-title">ENDLESS WAR</h1>
+        <p class="game-subtitle">Choose Your Battle</p>
+
+        <div class="menu-buttons">
+          <button id="endlessModeBtn" class="menu-btn primary">
+            <div class="btn-icon">♾️</div>
+            <div class="btn-content">
+              <div class="btn-title">Endless Mode</div>
+              <div class="btn-desc">Survive endless waves of enemies</div>
+            </div>
+          </button>
+
+          <button id="campaignModeBtn" class="menu-btn primary">
+            <div class="btn-icon">🎯</div>
+            <div class="btn-content">
+              <div class="btn-title">Campaign Mode</div>
+              <div class="btn-desc">Complete 10 strategic levels</div>
+            </div>
+          </button>
+        </div>
+
+        <div class="controls-info">
+          <h3>Controls</h3>
+          <p><strong>WASD</strong> - Move | <strong>Mouse</strong> - Aim & Shoot | <strong>R</strong> - Reload</p>
+          <p><strong>1/2/3</strong> - Switch Weapons</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" style="display: none;"></canvas>
+
+    <!-- Pause Menu -->
+    <div id="pauseScreen" class="screen overlay" style="display: none;">
+      <div class="pause-container">
+        <h1 class="pause-title">⏸️ PAUSED</h1>
+        <p class="pause-hint">Press ESC to resume</p>
+
+        <div class="pause-buttons">
+          <button id="resumeBtn" class="menu-btn primary">▶️ Resume Game</button>
+          <button id="pauseMenuBtn" class="menu-btn secondary">🏠 Back to Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Level Complete Screen (Campaign) -->
+    <div id="levelCompleteScreen" class="screen overlay">
+      <div class="end-container">
+        <h1 id="levelCompleteTitle" class="end-title success">Level Complete!</h1>
+        <p id="levelStats" class="end-stats"></p>
+
+        <div class="end-buttons">
+          <button id="nextLevelBtn" class="menu-btn primary">Next Level →</button>
+          <button id="levelMenuBtn" class="menu-btn secondary">Back to Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- End Screen (Game Over / Victory) -->
+    <div id="endScreen" class="screen overlay">
+      <div class="end-container">
+        <h1 id="endTitle" class="end-title">Game Over</h1>
+        <p id="endMessage" class="end-message"></p>
+        <p id="finalScore" class="end-score"></p>
+
+        <div class="end-buttons">
+          <button id="retryBtn" class="menu-btn primary">Retry</button>
+          <button id="backToMenuBtn" class="menu-btn secondary">Main Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
