@@ -318,11 +318,35 @@ export class Game {
             }
         }
 
+        // === COLLISION: Bullet vs Obstacles ===
+        for (let i = this.bullets.length - 1; i >= 0; i--) {
+            if (this.bullets[i].isDead) continue;
+
+            for (let j = 0; j < this.obstacles.length; j++) {
+                if (isColliding(this.bullets[i], this.obstacles[j])) {
+                    this.bullets[i].isDead = true;
+                    break;
+                }
+            }
+        }
+
         // === COLLISION: Enemy Bullet vs Player ===
         for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
             if (isColliding(this.enemyBullets[i], this.player)) {
                 this.player.takeDamage(this.enemyBullets[i].damage);
                 this.enemyBullets[i].isDead = true;
+            }
+        }
+
+        // === COLLISION: Enemy Bullet vs Obstacles ===
+        for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
+            if (this.enemyBullets[i].isDead) continue;
+
+            for (let j = 0; j < this.obstacles.length; j++) {
+                if (isColliding(this.enemyBullets[i], this.obstacles[j])) {
+                    this.enemyBullets[i].isDead = true;
+                    break;
+                }
             }
         }
 
